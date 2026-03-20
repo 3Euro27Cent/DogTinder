@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Details von {{ hund.name }}{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .dog-details {
+        padding: 40px 20px;
+    }
+
+    .dog-name {
+        font-size: clamp(2rem, 7vw, 5.6rem);
+        font-weight: bold;
+        color: #2196F3;
+        position: absolute;
+        left: 40%;
+        top: 10%;
+    }
+
+    .dog-description {
+        font-size: clamp(1rem, 5vw, 3.2rem);
+        margin-top: 15px;
+        color: #555;
+        position: absolute;
+        left: 40%;
+        top: 20%;
+    }
+
+    .button-group {
+        margin-top: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        position: absolute;
+        top: 82%;
+        left: 40%;
+    }
+
+    .vermittler-button {
+        padding: 10px 20px;
+        font-size: clamp(1rem, 5vw, 3rem);
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+
+    .vermittler-button:hover {
+        background-color: #2196F3;
+    }
+
+    .vermittler {
+        font-size: clamp(1rem, 5vw, 3rem);
+        position: absolute;
+        left: 40%;
+        top: 77%;
+    }
+    .dog-info {
+        position: absolute;
+        top: 30%;
+        left: 40%;
+        font-size: clamp(1rem, 2.5vw, 2rem);
+        line-height: 1.6;
+        color: #333;
+        max-width: 50%;
+    }
+
+    .dog-info p {
+        margin: 6px 0;
+    }
+
+    .dog-info strong {
+        color: #000;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dog-details">
+    <img src="{{ url_for('static', filename='images/' + hund.bild) }}" alt="Hund" style="width: auto; height: 87%; position: absolute; left: 5%; top: 10%; border-radius: 45px;">
+    <div class="dog-name">{{ hund.name }}</div>
+
+    <div class="dog-description">
+        <p>{{ hund.description }}</p>  
+    </div>
+    <div class="dog-info">
+        <p><strong>🐾 Rasse:</strong> {{ hund.rasse }}</p>
+        <p><strong>🎂 Alter:</strong> {{ hund.alter }} Jahre</p>
+        <p><strong>⚖️ Größe/Gewicht:</strong> {{ hund.groesse }} / {{ hund.gewicht }}</p>
+        <p><strong>💉 Geimpft & Gechipt:</strong> {{ 'Ja' if hund.geimpft_gechipt else 'Nein' }}</p>
+        <p><strong>🤝 Verträglichkeit:</strong></p>
+        <ul style="margin-left: 20px;">
+            <li>🐕 Mit Hunden: {{ '✅' if hund.vertraeglich_hunde else '❌' }}</li>
+            <li>🐱 Mit Katzen: {{ '✅' if hund.vertraeglich_katzen else '❌' }}</li>
+            <li>👶 Mit Kindern: ab {{ hund.kinder_ab }} Jahren</li>
+        </ul>
+        <p><strong>✨ Besonderheiten:</strong></p>
+        <ul style="margin-left: 20px;">
+            {% for punkt in hund.besonderheiten %}
+                <li>{{ punkt }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="vermittler">
+        <p><strong>Vermittler:</strong></p>
+    </div>
+    <div class="button-group">
+        <a href="/vermittler/{{ vermittler_username }}" class="vermittler-button">
+            {{ vermittler.display_name }}
+        </a>
+    </div>
+</div>
+{% endblock %}

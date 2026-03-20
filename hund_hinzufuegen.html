@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+
+{% block title %}Neuen Hund hinzufügen{% endblock %}
+
+{% block additional_styles %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+<style>
+    .dog-details {
+        padding: 40px 20px;
+    }
+
+    .dog-name {
+        font-size: clamp(2rem, 7vw, 5.6rem);
+        font-weight: bold;
+        color: #2196F3;
+        position: absolute;
+        left: 40%;
+        top: 10%;
+        cursor: pointer;
+    }
+
+    .dog-description {
+        font-size: clamp(1rem, 5vw, 3.2rem);
+        margin-top: 15px;
+        color: #555;
+        position: absolute;
+        left: 40%;
+        top: 20%;
+        cursor: pointer;
+        max-width: 40%;
+    }
+
+    .dog-description input,
+    .dog-name input {
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+        border: none;
+        background: none;
+        border-bottom: 2px solid #2196F3;
+        outline: none;
+        width: 100%;
+    }
+
+    .button-group {
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: absolute;
+        top: 87%;
+        left: 40%;
+    }
+
+    .vermittler-button {
+        padding: 10px 20px;
+        font-size: clamp(1rem, 5vw, 3rem);
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+        outline: none;
+        border: none; 
+    }
+
+    .vermittler-button:hover {
+        background-color: #2196F3;
+    }
+
+    .vermittler {
+        font-size: clamp(1rem, 5vw, 3rem);
+        position: absolute;
+        left: 40%;
+        top: 82%;
+    }
+
+    #placeholder {
+        cursor: pointer;
+    }
+
+    #uploadModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.6);
+    }
+
+    .upload-modal-content {
+        background-color: #1e1e2f;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 10px;
+        width: 40%;
+        text-align: center;
+        color: white;
+    }
+
+    .upload-modal-content input[type="file"] {
+        display: block;
+        margin: 20px auto;
+    }
+
+    .upload-buttons {
+        margin-top: 15px;
+    }
+
+    .upload-buttons button {
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        margin: 5px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .upload-buttons .ok-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .upload-buttons .cancel-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .dog-info {
+        position: absolute;
+        top: 30%;
+        left: 40%;
+        font-size: clamp(1rem, 2.5vw, 1.8rem);
+        color: #333;
+        display: flex;
+        gap: 40px;
+    }
+
+    .dog-info .info-card {
+        background: #f9f9f9;
+        border-radius: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+
+    .info-card.rasse-card {
+        width: 300px;
+    }
+
+    .info-card.vertraeglichkeit-card {
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .verträglichkeit-group div {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .info-card.besonderheiten-card {
+        width: 300px;
+        margin-left: 20px;
+    }
+
+    .dog-info label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #2196F3;
+        font-size: 1.4rem;
+    }
+
+    .dog-info input[type="text"],
+    .dog-info input[type="number"],
+    .dog-info select {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 1.2rem;
+        border: 2px solid #2196F3;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        background-color: #fff;
+    }
+
+    .besonderheiten-list input {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 1.2rem;
+        border: 2px solid #2196F3;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .add-besonderheit-btn {
+        padding: 10px 20px;
+        font-size: 1.2rem;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-besonderheit-btn:hover {
+        background-color: #2196F3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form action="{{ url_for('hund_hinzufuegen') }}" method="POST" enctype="multipart/form-data">
+    <div class="dog-details">
+        <input type="hidden" name="name" id="dogNameInput">
+        <input type="hidden" name="beschreibung" id="dogDescriptionInput">
+        <!-- Verstecktes File Input, das wir per JS mit Blob füllen -->
+        <input type="file" name="bild" id="imageFileInput" style="display:none" accept="image/jpeg,image/png">
+
+        <img id="placeholder" src="{{ url_for('static', filename='images/' + 'platzhalter_leer.jpg') }}" alt="Hund"
+             style="width: auto; height: 87%; position: absolute; left: 5%; top: 10%; border-radius: 45px; cursor:pointer;">
+
+        <div class="dog-name" id="dogName">Name des Hundes</div>
+        <div class="dog-description" id="dogDescription">Beschreibung</div>
+        
+        <div class="dog-info">
+
+            <div class="info-card rasse-card">
+                <label>🐾 Rasse</label>
+                <input type="text" name="rasse">
+
+                <label>🎂 Alter (in Jahren)</label>
+                <input type="number" name="alter" min="0" step="0.5">
+
+                <label>⚖️ Größe (cm)</label>
+                <input type="text" name="groesse">
+
+                <label>⚖️ Gewicht (kg)</label>
+                <input type="text" name="gewicht">
+
+                <label>💉 Geimpft & Gechipt</label>
+                <select name="geimpft_gechipt">
+                    <option value="1">Ja</option>
+                    <option value="0">Nein</option>
+                </select>
+            </div>
+
+            <div class="info-card vertraeglichkeit-card">
+                <label>🤝 Verträglichkeit</label>
+                <div class="verträglichkeit-group">
+                    <div>
+                        🐕 Mit Hunden<br>
+                        <select name="vertraeglich_hunde">
+                            <option value="1">✅</option>
+                            <option value="0">❌</option>
+                        </select>
+                    </div>
+                    <div>
+                        🐱 Mit Katzen<br>
+                        <select name="vertraeglich_katzen">
+                            <option value="1">✅</option>
+                            <option value="0">❌</option>
+                        </select>
+                    </div>
+                    <div>
+                        👶 Mit Kindern ab<br>
+                        <select name="vertraeglich_kinder">
+                            <option value="1">✅</option>
+                            <option value="0">❌</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-card besonderheiten-card">
+
+                <label>✨ Besonderheiten</label>
+                <div id="besonderheiten-list" class="besonderheiten-list">
+                    <input type="text" name="besonderheiten" placeholder="z.B. liebt Wasser">
+                </div>
+                <button type="button" class="add-besonderheit-btn" onclick="addBesonderheit()">+ Besonderheit</button>
+            </div>
+
+        </div>
+
+        <div class="vermittler">
+            <p><strong>Vermittler:</strong></p>
+        </div>
+
+        <div class="button-group">
+            <a href="/profile" class="vermittler-button">{{ vermittler.display_name }}</a>
+            <button type="submit" class="vermittler-button">Speichern</button>
+        </div>
+    </div>
+</form>
+
+<!-- Upload Modal -->
+<div id="uploadModal">
+    <div class="upload-modal-content">
+        <h3>Bild hochladen</h3>
+        <input type="file" id="fileInput" accept="image/*">
+        <div class="upload-buttons">
+            <button class="ok-btn" onclick="handleOk()">OK</button>
+            <button class="cancel-btn" onclick="closeModal()">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const placeholder = document.getElementById("placeholder");
+    const modal = document.getElementById("uploadModal");
+    const fileInput = document.getElementById("fileInput");
+    const imageFileInput = document.getElementById("imageFileInput");
+    const nameInput = document.getElementById("dogNameInput");
+    const descriptionInput = document.getElementById("dogDescriptionInput");
+
+    placeholder.addEventListener("click", () => {
+        modal.style.display = "block";
+    });
+
+    function closeModal() {
+        modal.style.display = "none";
+        fileInput.value = "";
+    }
+
+    async function handleOk() {
+        const file = fileInput.files[0];
+        if (file) {
+            // Bild laden
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.src = objectUrl;
+
+            img.onload = async function() {
+                URL.revokeObjectURL(objectUrl);
+
+                const targetRatio = 2 / 3;
+                let cropWidth = img.width;
+                let cropHeight = img.height;
+                const currentRatio = cropWidth / cropHeight;
+
+                if (currentRatio > targetRatio) {
+                    cropWidth = cropHeight * targetRatio;
+                } else {
+                    cropHeight = cropWidth / targetRatio;
+                }
+
+                const startX = (img.width - cropWidth) / 2;
+                const startY = (img.height - cropHeight) / 2;
+
+                // Canvas in gewünschter Größe
+                const canvas = document.createElement("canvas");
+                canvas.width = 1024;
+                canvas.height = 1536;
+                const ctx = canvas.getContext("2d");
+
+                ctx.drawImage(img, startX, startY, cropWidth, cropHeight, 0, 0, canvas.width, canvas.height);
+
+                // Blob erzeugen aus Canvas
+                canvas.toBlob(function(blob) {
+                    // Neues File-Objekt erstellen (optional Name anpassen)
+                    const newFile = new File([blob], "hundbild.jpg", {type: "image/jpeg", lastModified: Date.now()});
+
+                    // Datei in verstecktes input setzen
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(newFile);
+                    imageFileInput.files = dataTransfer.files;
+
+                    // Vorschaubild im <img> aktualisieren
+                    placeholder.src = URL.createObjectURL(newFile);
+                }, "image/jpeg", 0.9);
+            }
+        }
+        closeModal();
+    }
+
+    function makeEditable(element, isMultiline = false) {
+        const currentText = element.innerText;
+        const input = document.createElement(isMultiline ? "textarea" : "input");
+        input.value = currentText;
+        input.style.font = "inherit";
+        input.style.width = "100%";
+        input.style.background = "none";
+        input.style.border = "none";
+        input.style.borderBottom = "2px solid #2196F3";
+        input.style.color = "inherit";
+        input.style.outline = "none";
+
+        element.innerHTML = '';
+        element.appendChild(input);
+        input.focus();
+
+        input.addEventListener("blur", () => {
+            const newValue = input.value;
+            element.innerHTML = isMultiline ? `<p>${newValue}</p>` : newValue;
+            if (element.id === "dogName") nameInput.value = newValue;
+            if (element.id === "dogDescription") descriptionInput.value = newValue;
+        });
+
+        input.addEventListener("keydown", (e) => {
+            if (!isMultiline && e.key === "Enter") {
+                e.preventDefault();
+                input.blur();
+            }
+        });
+    }
+
+    document.getElementById("dogName").addEventListener("click", () => {
+        makeEditable(document.getElementById("dogName"));
+    });
+
+    document.getElementById("dogDescription").addEventListener("click", () => {
+        makeEditable(document.getElementById("dogDescription"));
+    });
+
+    function addBesonderheit() {
+        const list = document.getElementById("besonderheiten-list");
+        const newItem = document.createElement("li");
+        newItem.innerHTML = '<input type="text" name="besonderheiten" style="width: 80%;" placeholder="Weitere Besonderheit">';
+        list.appendChild(newItem);
+    }
+</script>
+{% endblock %}

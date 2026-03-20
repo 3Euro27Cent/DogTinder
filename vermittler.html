@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vermittler.display_name }} – Profil{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .edit-button {
+        display: inline-block;
+        margin: 15px 0 30px 0;
+        padding: 10px 25px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-button:hover {
+        background-color: #45a049;
+    }
+    .vermittler-box {
+        position: absolute;
+        width: 80%;
+        height: 88%;
+        left: 10%;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 40px;
+        font-size: clamp(1rem, 3vw, 2rem);
+        overflow-y: auto;
+    }
+
+    .vermittler-box h1 {
+        margin-bottom: 40px;
+        color: #4CAF50;
+    }
+
+    .vermittler-box p {
+        margin-bottom: 15px;
+    }
+
+    .vermittler-box h2 {
+        margin-top: 40px;
+        margin-bottom: 20px;
+        color: #4CAF50;
+    }
+
+    .vermittler-box ul {
+        margin-bottom: 40px;
+    }
+
+    .hunde-liste {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 30px;
+    }
+
+    .hund-card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 10px;
+        width: 300px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .hund-card:hover {
+        transform: scale(1.05);
+    }
+
+    .hund-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    li {
+        background: #e9e9e9;
+        margin: 8px auto;
+        padding: 10px;
+        border-radius: 6px;
+        width: 80%;
+    }
+
+    .hund-card a {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="vermittler-box">
+    <h1>{{ vermittler.display_name }}</h1>
+    <p>{{ vermittler.description }}</p>
+    <p><strong>Kontakt:</strong> {{ vermittler.email }}</p>
+
+    <h2>Kommentare</h2>
+    <ul>
+        {% for comment in vermittler.comments %}
+            <li>{{ comment }}</li>
+        {% else %}
+            <li>Noch keine Kommentare vorhanden.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Hunde von {{ vermittler.display_name }}</h2>
+    <div class="hunde-liste">
+        {% for hund in hunde %}
+        <div class="hund-card">
+            <a href="/hund/{{ hund.name }}">
+                <img src="{{ url_for('static', filename='images/' + hund.bild) }}" alt="{{ hund.name }}">
+                <div><strong>{{ hund.name }}</strong></div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    <button class="edit-button" onclick="window.location.href='{{ url_for('chat', partner_id=vermittler.id) }}'">Direkt Nachricht</button>
+</div>
+{% endblock %}

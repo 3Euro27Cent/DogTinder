@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: clamp(1rem, 5vw, 2.5rem);
+        }
+
+        .back-link {
+            position: absolute;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: clamp(1rem, 5vw, 2.5rem);
+        }
+    </style>
+    {% block additional_styles %}{% endblock %}
+</head>
+<body>
+    <header>
+        {% if show_back %}
+        <a href="{{ back_url }}" class="back-link">← Zurück</a>
+        {% endif %}
+        <nav>
+            <a href="/">Startseite</a>
+            {% if 'user_id' in session %}
+                <a href="/filter">Filter</a>
+                <a href="/profile">Mein Profil</a>
+                <a href="{{ url_for('chats') }}">Chats</a>
+                <a href="/logout">Abmelden</a>
+            {% else %}
+                <a href="/login">Anmelden</a>
+                <a href="/register">Registrieren</a>
+            {% endif %}
+            
+        </nav>
+    </header>
+    {% block content %}{% endblock %}
+</body>
+</html>

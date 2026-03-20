@@ -1,0 +1,174 @@
+
+{% extends "base.html" %}
+
+{% block title %}Filter{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .filter-box {
+        position: absolute;
+        width: 80%;
+        left: 10%;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 40px;
+        font-size: clamp(1rem, 3vw, 1.6rem);
+        overflow-y: auto;
+    }
+
+    h2, h3 {
+        color: #4CAF50;
+        margin-bottom: 15px;
+    }
+
+    section {
+        margin-bottom: 30px;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0;
+        font-size: clamp(1rem, 3vw, 1.4rem);
+    }
+
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        margin-top: 5px;
+        background: #fafafa;
+    }
+
+    input[type="checkbox"] {
+        transform: scale(1.3);
+        margin-right: 10px;
+    }
+
+    button {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: clamp(1rem, 3vw, 1.5rem);
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 20px;
+        color: #4CAF50;
+        text-decoration: none;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    .alter-row {
+        display: flex;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .alter-row .alter-field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .alter-row input[type="number"] {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: clamp(1rem, 3vw, 1.3rem);
+        background: #fafafa;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="filter-box">
+    <form method="POST">
+        <h2>Suchfilter</h2>
+        
+        <section>
+            <h3>Allgemeine Kriterien</h3>
+            <label><input type="checkbox" name="nur_tierheim" value="1"> Nur aus Tierheimen</label>
+            <label><input type="checkbox" name="nur_gut_bewertet" value="1"> Nur gut bewertete Vermittler</label>
+        </section>
+
+        <section>
+            <h3>Rasse</h3>
+            <select name="rasse">
+                <option value="">Beliebig</option>
+                {% for rasse in alle_rassen %}
+                    <option value="{{ rasse }}">{{ rasse }}</option>
+                {% endfor %}
+            </select>
+        </section>
+
+        <section>
+            <h3>Alter</h3>
+
+            <div class="alter-row">
+                <div class="alter-field">
+                    <label for="alter_min">Von:</label>
+                    <input type="number" name="alter_min" id="alter_min" min="0" placeholder="Beliebig jung">
+                </div>
+
+                <div class="alter-field">
+                    <label for="alter_max">Bis:</label>
+                    <input type="number" name="alter_max" id="alter_max" min="0" placeholder="Beliebig alt">
+                </div>
+            </div>
+        </section>
+
+
+        <section>
+            <h3>Größe</h3>
+            <select name="groesse">
+                <option value="">Beliebig</option>
+                <option value="klein">Klein</option>
+                <option value="mittel">Mittel</option>
+                <option value="groß">Groß</option>
+            </select>
+        </section>
+
+        <section>
+            <h3>Besondere Eigenschaften</h3>
+            <label><input type="checkbox" name="geimpft" value="1"> Geimpft</label>
+            <label><input type="checkbox" name="kastriert" value="1"> Kastriert</label>
+            <label><input type="checkbox" name="kinderfreundlich" value="1"> Kinderfreundlich</label>
+            <label><input type="checkbox" name="hundevertraeglich" value="1"> Verträglich mit anderen Hunden</label>
+        </section>
+
+        <section>
+            <h3>Aktivitätslevel</h3>
+            <select name="aktivitaetslevel">
+                <option value="">Beliebig</option>
+                <option value="ruhig">Ruhig</option>
+                <option value="ausgeglichen">Ausgeglichen</option>
+                <option value="aktiv">Aktiv</option>
+            </select>
+        </section>
+
+        <button type="submit">Filter anwenden</button>
+    </form>
+</div>
+{% endblock %}

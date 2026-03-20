@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunde zur Adoption</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .hund { border: 1px solid #ccc; padding: 10px; margin: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <h1>🐶 Hunde zur Adoption</h1>
+    {% for hund in hunde %}
+        <div class="hund">
+            <h2>{{ hund.name }}</h2>
+            <p><strong>Alter:</strong> {{ hund.alter }} Jahre</p>
+            <p><strong>Rasse:</strong> {{ hund.rasse }}</p>
+            <p>{{ hund.beschreibung }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>

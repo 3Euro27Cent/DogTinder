@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %} – Deine Chats{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 1600px;
+        margin: 50px auto;
+        background-color: #fff;
+        padding: 40px 30px;
+        border-radius: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-size: clamp(1.5rem, 2.5vw, 2.3rem);
+    }
+
+    .chat-header {
+        color: #4CAF50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .chat-messages {
+        width: 100%;
+        max-height: 50vh;
+        overflow-y: auto;
+        margin-bottom: 30px;
+    }
+
+    .chat-messages p {
+        margin: 15px 0;
+        padding: 15px 20px;
+        border-radius: 12px;
+        background-color: #f1f1f1;
+        width: fit-content;
+        max-width: 80%;
+    }
+
+    .chat-messages p.me {
+        background-color: #d0f0d0;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+
+    .chat-messages small {
+        font-size: 0.6em;
+        color: #666;
+        margin-left: 8px;
+    }
+
+    form.chat-form {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    form.chat-form input[type="text"] {
+        flex: 1;
+        padding: 14px 18px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    form.chat-form button {
+        padding: 14px 24px;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    form.chat-form button:hover {
+        background-color: #2196F3;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <h2 class="chat-header">Chat mit {{ partner.display_name or partner.username }}</h2>
+
+    <div class="chat-messages">
+        {% for msg in messages %}
+            <p class="{{ 'me' if msg.sender_id == session['user_id'] else '' }}">
+                <strong>{{ 'Du' if msg.sender_id == session['user_id'] else partner.display_name or partner.username }}</strong>:
+                {{ msg.content }}
+                <small>{{ msg.timestamp.strftime('%H:%M') }}</small>
+            </p>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="chat-form">
+        <input type="text" name="message" placeholder="Nachricht eingeben..." required>
+        <button type="submit">Senden</button>
+    </form>
+</div>
+{% endblock %}

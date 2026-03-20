@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Hunde Feed{% endblock %}
+
+{% block additional_styles %}
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 90vh;
+        position: relative;
+        width: 100%;
+    }
+
+    .box {
+        background-color: white;
+        border-radius: 50px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-align: center;
+        padding: 20px;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5vmin;
+        cursor: pointer;
+        max-height: 910px;
+    }
+
+    .box.left {
+        width: 24%;
+        height: 70vh;
+        left: -7%;
+    }
+
+    .box.center {
+        width: 43%;
+        height: 70vh;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .box.right {
+        width: 24%;
+        height: 70vh;
+        right: -7%;
+    }
+
+    .arrow {
+        font-size: 6vmin;
+        position: absolute;
+        color: #4CAF50;
+        cursor: pointer;
+    }
+
+    .arrow-left {
+        left: 21%;
+    }
+
+    .arrow-right {
+        right: 21%;
+    }
+
+    .vermittler-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        font-size: 3vmin;
+        white-space: normal;
+        text-align: center;
+        line-height: 1.2;
+        width: auto;
+        max-width: 100%;
+    }
+
+    .vermittler-button:hover {
+        background-color: #2196F3;
+    }
+
+    .button-group {
+        display: inline-block;
+        max-width: 40%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="box left" id="box-left"></div>
+    <span class="arrow arrow-left" onclick="moveLeft()">&#8592;</span>
+    <div class="box center" id="box-center"></div>
+    <span class="arrow arrow-right" onclick="moveRight()">&#8594;</span>
+    <div class="box right" id="box-right"></div>
+</div>
+
+<script>
+    let dogs = {{ hunde|tojson }};
+    let currentIndex = {{ current_index }};
+
+    const vermittlerNamen = {
+        {% for key, value in vermittler.items() %}
+        "{{ key }}": "{{ value.display_name }}",
+        {% endfor %}
+    };
+
+    function getVermittlerDisplayName(sourceKey) {
+        return vermittlerNamen[sourceKey] || sourceKey;
+    }
+
+    function moveRight() {
+        currentIndex = (currentIndex + 1) % dogs.length;
+        updateBoxes();
+    }
+
+    function moveLeft() {
+        currentIndex = (currentIndex - 1 + dogs.length) % dogs.length;
+        updateBoxes();
+    }
+
+    function updateBoxes() {
+        let leftIndex = (currentIndex - 1 + dogs.length) % dogs.length;
+        let rightIndex = (currentIndex + 1) % dogs.length;
+
+        let leftBox = document.getElementById("box-left");
+        let centerBox = document.getElementById("box-center");
+        let rightBox = document.getElementById("box-right");
+
+        leftBox.innerHTML = `<div style="position: relative; display: flex; align-items: center; width: 103%; height: 100%; justify-content: center;">
+                                 <img src="/static/images/${dogs[leftIndex].image}" alt="${dogs[leftIndex].name}" style="width: 103%; height: 103%; border-radius: 45px; object-fit: cover;">
+                             </div>`;
+
+        centerBox.innerHTML = `<div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-start;">
+                                    <img src="/static/images/${dogs[currentIndex].image}" alt="${dogs[currentIndex].name}" style="width: 55%; height: 101%; object-fit: fill; border-radius: 45px; font-weight: bold;">
+                                    <div style="position: absolute; top: 5%; left: 60%; text-align: left;">
+                                        <span style="font-size: 7vmin;">${dogs[currentIndex].name}</span>
+                                    </div>
+                                    <div style="position: absolute; top: 20%; left: 60%; text-align: left;">
+                                        <span style="font-size: 5vmin;">${dogs[currentIndex].rasse}</span>
+                                    </div>
+                                    <div class="button-group" style="position: absolute; bottom: 3%; left: 60%;">
+                                        <a href="/vermittler/${dogs[currentIndex].owner_username}" class="vermittler-button">
+                                            ${dogs[currentIndex].owner_display_name}
+                                        </a>
+                                    </div>
+                               </div>`;
+
+        rightBox.innerHTML = `<div style="position: relative; display: flex; align-items: center; width: 103%; height: 100%; justify-content: center;">
+                                  <img src="/static/images/${dogs[rightIndex].image}" alt="${dogs[rightIndex].name}" style="width: 103%; height: 103%; border-radius: 45px; object-fit: cover;">
+                              </div>`;
+
+        leftBox.onclick = () => goToDetails(dogs[leftIndex].id);
+        centerBox.onclick = () => goToDetails(dogs[currentIndex].id);
+        rightBox.onclick = () => goToDetails(dogs[rightIndex].id);
+
+    }
+
+    function goToDetails(dogId) {
+        window.location.href = `/hund/${dogId}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", updateBoxes);
+</script>
+{% endblock %}
